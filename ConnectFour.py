@@ -217,7 +217,7 @@ def play_game():
     board = [[EMPTY] * COLS for _ in range(ROWS)]
     board[2][3] = 'X'
     board[2][2] = 'O'
-    player = 'O'
+    player = 'X'
     print_board(board)
 
     while True:
