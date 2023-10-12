@@ -46,13 +46,57 @@ def heuristic(board, player):
 
         return count_2side_open, count_1side_open
 
+    def count_open2(player):
+        # Count two-side open and one-side open 2-in-a-row for the player
+        count_2side_open, count_1side_open = 0, 0
+        for row in range(ROWS):
+            for col in range(COLS):
+                if board[row][col] == player:
+                    # Check horizontally
+                    if col <= COLS - WINNING_LENGTH:
+                        if board[row][col:col+WINNING_LENGTH].count(player) == 2:
+                            count_2side_open += 1
+                        elif board[row][col:col+WINNING_LENGTH].count('.') == 1:
+                            count_1side_open += 1
+
+                    # Check vertically
+                    if row <= ROWS - WINNING_LENGTH:
+                        if all(board[r][col] == player for r in range(row, row+WINNING_LENGTH)):
+                            count_2side_open += 1
+                        elif all(board[r][col] == '.' for r in range(row, row+WINNING_LENGTH - 1)):
+                            count_1side_open += 1
+
+                    # Check diagonally (down-right)
+                    if col <= COLS - WINNING_LENGTH and row <= ROWS - WINNING_LENGTH:
+                        diag = [board[row+i][col+i] for i in range(WINNING_LENGTH)]
+                        if diag.count(player) == 2:
+                            count_2side_open += 1
+                        elif diag.count('.') == 1:
+                            count_1side_open += 1
+
+                    # Check diagonally (down-left)
+                    if col >= WINNING_LENGTH - 1 and row <= ROWS - WINNING_LENGTH:
+                        diag = [board[row+i][col-i] for i in range(WINNING_LENGTH)]
+                        if diag.count(player) == 2:
+                            count_2side_open += 1
+                        elif diag.count('.') == 1:
+                            count_1side_open += 1
+
+        return count_2side_open, count_1side_open
+
     my_2side_open, my_1side_open = count_open3(player)
     opp_2side_open, opp_1side_open = count_open3('X' if player == 'O' else 'O')
 
+    my_2side_open_2, my_1side_open_2 = count_open2(player)
+    opp_2side_open_2, opp_1side_open_2 = count_open2('X' if player == 'O' else 'O')
+
     return (
         200 * my_2side_open - 80 * opp_2side_open +
-        150 * my_1side_open - 40 * opp_1side_open
+        150 * my_1side_open - 40 * opp_1side_open +
+        20 * my_2side_open_2 - 15 * opp_2side_open_2 +
+        5 * my_1side_open_2 - 2 * opp_1side_open_2
     )
+
 
 # Check if a player has won
 def is_winner(board, player):
@@ -173,7 +217,7 @@ def play_game():
     board = [[EMPTY] * COLS for _ in range(ROWS)]
     board[2][3] = 'X'
     board[2][2] = 'O'
-    player = 'X'
+    player = 'O'
     print_board(board)
 
     while True:
@@ -211,48 +255,3 @@ def play_game():
         player = 'X' if player == 'O' else 'O'
 
 play_game()
-
-### GAME ###
-# Game start
-# . . . . . .
-# . . . . . .
-# . . O X . .
-# . . . . . .
-# . . . . . .
-
-# Player X generated 81 nodes in 0.00115 seconds
-# . . . . . .
-# . . X . . .
-# . . O X . .
-# . . . . . .
-# . . . . . .
-
-# Player O generated 5588 nodes in 0.11454 seconds
-# . . . . . .
-# . . X . . .
-# . O O X . .
-# . . . . . .
-# . . . . . .
-
-# Player X generated 94 nodes in 0.00166 seconds
-# . X . . . .
-# . . X . . .
-# . O O X . .
-# . . . . . .
-# . . . . . .
-
-# Player O generated 8546 nodes in 0.20444 seconds
-# . X . . . .
-# O . X . . .
-# . O O X . .
-# . . . . . .
-# . . . . . .
-
-# Player X generated 106 nodes in 0.00264 seconds
-# . X . . . .
-# O . X . . .
-# . O O X . .
-# . . . . X .
-# . . . . . .
-
-# Player X wins!
